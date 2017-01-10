@@ -981,6 +981,7 @@ echo '' > tmpfile
 ```
 
 ```bash
+git add tempfile
 git commit -m "Created a tmpfile" tmpfile
 ```
 
@@ -1004,14 +1005,4 @@ git log
 
 ```bash
 git log -1
-```
-
-
-```python
-
-```
-
-
-```python
-
 ```
