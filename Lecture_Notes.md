@@ -1,5 +1,5 @@
 
-# Lecture 1
+# Lecture 1 — Setting up
 ### January 9, 2017 (Morning)
 
 ### Before we start:
@@ -153,7 +153,7 @@ echo 'Hello World'
 
 ___
 
-# Lecture 2
+# Lecture 2 — Introduction to UNIX commands
 ### January 9, 2017 (Afternoon)
 
 - Continuing with bash / unix commands
@@ -866,7 +866,7 @@ cat rotten.txt
 
 -------
 
-# Lecture 3
+# Lecture 3 — Introduction to Git
 ### January 10, 2017 (Morning)
 
 ### Todo list—
@@ -1005,4 +1005,330 @@ git log
 
 ```bash
 git log -1
+```
+
+# Lecture 4  — Introduction to Python
+### January 11, 2017 (Morning)
+
+### Todo list—
+1. Clone Dario's Repository
+2. Command aliases
+3. Introduction to Python!
+
+## 1. Cloning Repositories
+
+```bash
+git clone http://www.github.com/darioflute/CS4A.git
+```
+
+- now cd into the folder
+```bash
+cd CS4A
+```
+
+- now try to update the repository
+- it should say "up to date"
+```bash
+git pull origin master
+```
+
+## 2. Command aliases
+
+```bash
+cd ~
+vim bash.rc
+```
+
+- add the line
+
+```bash
+alias jn = "jupyter notebook"
+```
+
+## 3. Introduction to Python
+
+- This will create a basic python script:
+
+
+```python
+%%writefile hello-world.py
+#!/usr/bin/env python
+print ("Hello world!")
+```
+
+    Overwriting hello-world.py
+
+
+- now let's make it executable
+```bash
+!chmod +x hello-world.py
+```
+
+- Writing using other character sets
+
+```python
+writefile hello-world-in-german.py
+#!/usr/bin/env python
+# -*- coding: UTF-8 -*-
+
+print(" Meine Völker !")
+```
+
+### Importing Packages
+
+- Allows you to import other commands
+- The math package has mathematical functions for example
+
+```python
+import math
+x = math.cos( 2 * math.pi )
+```
+
+**OR** for easier reading
+
+```python
+from math import cos,pi
+x = cos( 2 * pi )
+print(x)
+```
+
+### Examening Packages
+
+```python
+import math
+print(dir(math))
+```
+
+
+```python
+import math
+print(dir(math))
+```
+
+    ['__doc__', '__file__', '__name__', '__package__', 'acos', 'acosh', 'asin', 'asinh', 'atan', 'atan2', 'atanh', 'ceil', 'copysign', 'cos', 'cosh', 'degrees', 'e', 'erf', 'erfc', 'exp', 'expm1', 'fabs', 'factorial', 'floor', 'fmod', 'frexp', 'fsum', 'gamma', 'hypot', 'isinf', 'isnan', 'ldexp', 'lgamma', 'log', 'log10', 'log1p', 'modf', 'pi', 'pow', 'radians', 'sin', 'sinh', 'sqrt', 'tan', 'tanh', 'trunc']
+
+
+
+```python
+import math
+help(math.log)
+```
+
+    Help on built-in function log in module math:
+    
+    log(...)
+        log(x[, base])
+        
+        Return the logarithm of x to the given base.
+        If the base not specified, returns the natural logarithm (base e) of x.
+    
+
+
+- Some useful pagkages include os, sys, math, and more
+
+### Variables
+
+```python
+x = 10.
+print (x)
+print ( type(x) )
+```
+
+- adding a '.' at the end defines it as a float:
+
+
+```python
+x = 10.
+print (x)
+print ( type(x) )
+```
+
+    10.0
+    <type 'float'>
+
+
+#### Variable types
+
+example | type
+--- | ---
+10. | float
+True | bool
+10 - 10j | complex
+
+
+
+```python
+# let's check if a type is what we want
+x = 1.0
+type(x) is float
+```
+
+
+
+
+    True
+
+
+
+
+```python
+# we can even save the type as a bool
+x = 1.0
+typex = type(x) is float
+print typex
+```
+
+    True
+
+
+
+```python
+# there is also a function for this
+isinstance(x, float)
+```
+
+
+
+
+    True
+
+
+
+### Type Casting
+
+
+```python
+x = 10.
+print (x)
+x = int(x)
+print (x)
+print( list(s))
+```
+
+    10.0
+    10
+    ['H', 'e', 'l', 'l', 'o', ' ', 'W', 'o', 'r', 'l', 'd']
+
+
+### Basic Operations
+
+- to the power  \*\*
+- division /
+- integer division //
+- or, and, not, >, <, >=, <=, ==
+
+
+```python
+print (True or False)
+print (True and False)
+print (not True)
+```
+
+    True
+    False
+    False
+
+
+- arrays
+
+```python
+list1 = [1,2,3,4]
+```
+
+
+### Strings
+
+- just text
+
+
+```python
+s = "Hello World"
+print(s)
+print( type(s) )
+len(s)                                     #length
+s2 = s.replace("World" , "Friends")        #replaces strings
+print(s2)
+print(len(s2))
+print(s2[4])                               # counting starts at 0
+print(s[0:5])                              # print characters 0-4
+print(s[:5])                               # same as above
+print(s[5:])                               # 5th till the end
+#print(s(5:-1))                             # 5th to second to last
+print(s[:])                                # : is all chars
+print(s[::2])                              # prints in steps of 2
+```
+
+    Hello World
+    <type 'str'>
+    Hello Friends
+    13
+    o
+    Hello
+    Hello
+     World
+    Hello World
+    HloWrd
+
+
+- **string formatting**
+
+### Lists
+
+
+```python
+# Create a list
+l = [1,2,3,4]
+type(l)
+```
+
+
+
+
+    list
+
+
+
+
+```python
+# print certain elements
+print (l[2])
+print (l[-1])
+```
+
+    3
+    4
+
+
+**note: a list is not an array**
+- you can put different types of things in there
+- you can also nest lists
+
+
+```python
+# look at all the different types inside!
+l2 = [1, 2j, "Hello", True]
+```
+
+**Range**
+
+
+```python
+print( range(5) )
+print( range(4,7) )
+print( range(0,20, 4))
+
+```
+
+    [0, 1, 2, 3, 4]
+    [4, 5, 6]
+    [0, 4, 8, 12, 16]
+
+
+### More list operations
+
+***Import from Dario's notes***
+
+
+```python
+
 ```
