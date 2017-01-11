@@ -1,4 +1,41 @@
 
+# Programming for Astrophysics — Lecture notes
+**Jarred Green**
+
+**astrojarred@gmail.com**
+
+## Contents:
+  ### Lecture 1 — Setting up
+    1. Markdown introduction
+    2. Writing code in Jupyter
+    3. Basic UNIX Commands
+  ### Lecture 2 — Introduction to UNIX commands
+    1. Pipes and chaining
+    2. Wildcards
+    3. Basic Scripting
+    4. Arrays
+    5. Grep
+    6. Find
+    7. Substitute Strings
+  ### Lecture 3 — Introduction to Git
+    1. Create repository on Github
+    2. Github Version Control
+    3. Git commands
+  ### Lecture 4 — Introduction to Python!
+    1. Clone Dario's Repository
+    2. Command aliases
+    3. Introduction to Python!
+  ### Lecture 5 — Introduction to Python II + Plotting
+    1. Tuples
+    2. Dictionaries
+    3. Control Flow
+    4. Loops
+    5. Functions
+    6. Classes
+    7. Modules
+    8. Try and Accept
+    9. Plotting
+
 # Lecture 1 — Setting up
 ### January 9, 2017 (Morning)
 
@@ -1326,7 +1363,681 @@ print( range(0,20, 4))
 
 ### More list operations
 
-***Import from Dario's notes***
+- Check out this example from https://learnpythonthehardway.org/book/ex38.html
+
+
+
+```python
+ten_things = "Apples Oranges Crows Telephone Light Sugar"
+
+print "Wait there are not 10 things in that list. Let's fix that."
+
+stuff = ten_things.split(' ')
+more_stuff = ["Day", "Night", "Song", "Frisbee", "Corn", "Banana", "Girl", "Boy"]
+
+while len(stuff) != 10:
+    next_one = more_stuff.pop()
+    print "Adding: ", next_one
+    stuff.append(next_one)
+    print "There are %d items now." % len(stuff)
+
+print "There we go: ", stuff
+
+print "Let's do some things with stuff."
+
+print stuff[1]
+print stuff[-1] # whoa! fancy
+print stuff.pop()
+print ' '.join(stuff) # what? cool!
+print '#'.join(stuff[3:5]) # super stellar!
+
+```
+
+    Wait there are not 10 things in that list. Let's fix that.
+    Adding:  Boy
+    There are 7 items now.
+    Adding:  Girl
+    There are 8 items now.
+    Adding:  Banana
+    There are 9 items now.
+    Adding:  Corn
+    There are 10 items now.
+    There we go:  ['Apples', 'Oranges', 'Crows', 'Telephone', 'Light', 'Sugar', 'Boy', 'Girl', 'Banana', 'Corn']
+    Let's do some things with stuff.
+    Oranges
+    Corn
+    Corn
+    Apples Oranges Crows Telephone Light Sugar Boy Girl Banana
+    Telephone#Light
+
+
+# Lecture 5  — Introduction to Python, pt. 2
+### January 11, 2017 (Afternoon)
+
+### Todo list—
+1. Tuples
+2. Dictionaries
+3. Control Flow
+4. Loops
+5. Functions
+6. Classes
+7. Modules
+8. Try and Accept
+
+## 1. Tuples
+
+- a tuple is a sequence of immutable Python objects. Tuples are sequences, just like lists.
+- the differences between tuples and lists are, the tuples cannot be changed unlike lists and tuples use parentheses, whereas lists use square brackets.
+- they are like lists, but you can not editable
+- use parenthesis
+
+```python
+point = (10,20)
+```
+
+
+```python
+point = (10,20)
+print(point)
+```
+
+    (10, 20)
+
+
+
+```python
+x, y = point
+print(x)
+print(y)
+```
+
+    10
+    20
+
+
+## 2. Dictionaries
+
+- Like lists, but each element is a pair
+
+```python
+stuff = {'name': 'Zed', 'age': 39, 'height': 6 * 12 + 2}
+```
+
+- see the below example for uses of dictionaries from https://learnpythonthehardway.org/book/ex39.html
+
+
+```python
+states = {
+    'Oregon': 'OR',
+    'Florida': 'FL',
+    'California': 'CA',
+    'New York': 'NY',
+    'Michigan': 'MI'
+}
+
+print(states)
+
+#make a second dictionary
+
+cities = {
+    'CA': 'San Francisco',
+    'MI': 'Detroit',
+    'FL': 'Jacksonville'
+}
+
+# add some more cities
+cities['NY'] = 'New York'
+cities['OR'] = 'Portland'
+
+# print out some cities
+print '-' * 10
+print "NY State has: ", cities['NY']
+print "OR State has: ", cities['OR']
+
+# print some states
+print '-' * 10
+print "Michigan's abbreviation is: ", states['Michigan']
+print "Florida's abbreviation is: ", states['Florida']
+
+# do it by using the state then cities dict
+print '-' * 10
+print "Michigan has: ", cities[states['Michigan']]
+print "Florida has: ", cities[states['Florida']]
+
+# print every state abbreviation
+print '-' * 10
+for state, abbrev in states.items():
+    print "%s is abbreviated %s" % (state, abbrev)
+
+# print every city in state
+print '-' * 10
+for abbrev, city in cities.items():
+    print "%s has the city %s" % (abbrev, city)
+
+# now do both at the same time
+print '-' * 10
+for state, abbrev in states.items():
+    print "%s state is abbreviated %s and has city %s" % (
+        state, abbrev, cities[abbrev])
+
+print '-' * 10
+# safely get a abbreviation by state that might not be there
+state = states.get('Texas')
+
+if not state:
+    print "Sorry, no Texas."
+
+# get a city with a default value
+city = cities.get('TX', 'Does Not Exist')
+print "The city for the state 'TX' is: %s" % city
+
+```
+
+    {'California': 'CA', 'Michigan': 'MI', 'New York': 'NY', 'Florida': 'FL', 'Oregon': 'OR'}
+    ----------
+    NY State has:  New York
+    OR State has:  Portland
+    ----------
+    Michigan's abbreviation is:  MI
+    Florida's abbreviation is:  FL
+    ----------
+    Michigan has:  Detroit
+    Florida has:  Jacksonville
+    ----------
+    California is abbreviated CA
+    Michigan is abbreviated MI
+    New York is abbreviated NY
+    Florida is abbreviated FL
+    Oregon is abbreviated OR
+    ----------
+    FL has the city Jacksonville
+    CA has the city San Francisco
+    MI has the city Detroit
+    OR has the city Portland
+    NY has the city New York
+    ----------
+    California state is abbreviated CA and has city San Francisco
+    Michigan state is abbreviated MI and has city Detroit
+    New York state is abbreviated NY and has city New York
+    Florida state is abbreviated FL and has city Jacksonville
+    Oregon state is abbreviated OR and has city Portland
+    ----------
+    Sorry, no Texas.
+    The city for the state 'TX' is: Does Not Exist
+
+
+## 3. Control Flow
+
+- **if, elif, else**: the three main conditional words
+  - **if** — put first- if x is true, do the following
+  - **elif** — if the last thing wasn't true, do this, you can put as many as these as you want
+  - **else** — if none of the above stuff was true, do this.  (It's kind of like the last resort.)
+- Check out Dario's example below:
+
+
+```python
+#change around statements 1 and 2 from True to False, and see what results you get!
+
+statement1 = True
+statement2 = False
+if statement1:                     # This is equilvalent to saying "If statement1 is True, do the following"
+    print ('Statement 1 is true')
+    print ('I am very sorry')
+elif statement2 == False:          # This is like saying "if the last thing wasn't true try this instead"
+    print ("Nothing")
+else:                              # This is like saying "because none of the previous stuff was true, just do this"
+    print ("Statement 1 is false")
+```
+
+    Statement 1 is true
+    I am very sorry
+
+
+- Check out this fun example from https://learnpythonthehardway.org/book/ex31.html
+  - I've added some notes to here
+
+
+```python
+print "You enter a dark room with two doors.  Do you go through door #1 or door #2?"
+
+door = raw_input("> ") #this lets you enter your own text
+
+if door == "1":
+    print "There's a giant bear here eating a cheese cake.  What do you do?"
+    print "1. Take the cake."
+    print "2. Scream at the bear."
+
+    bear = raw_input("> ")
+
+    if bear == "1":
+        print "The bear eats your face off.  Good job!"
+    elif bear == "2":
+        print "The bear eats your legs off.  Good job!"
+    else:
+        print "Well, doing %s is probably better.  Bear runs away." % bear
+
+elif door == "2":
+    print "You stare into the endless abyss at Cthulhu's retina."
+    print "1. Blueberries."
+    print "2. Yellow jacket clothespins."
+    print "3. Understanding revolvers yelling melodies."
+
+    insanity = raw_input("> ")
+
+    if insanity == "1" or insanity == "2":
+        print "Your body survives powered by a mind of jello.  Good job!"
+    else:
+        print "The insanity rots your eyes into a pool of muck.  Good job!"
+
+else:
+    print "You stumble around and fall on a knife and die.  Good job!"
+
+```
+
+    You enter a dark room with two doors.  Do you go through door #1 or door #2?
+    > 1
+    There's a giant bear here eating a cheese cake.  What do you do?
+    1. Take the cake.
+    2. Scream at the bear.
+    > 1
+    The bear eats your face off.  Good job!
+
+
+## 4. Loops
+
+### for loops
+
+- will repeat the same action over and over
+
+```python
+for x in [1,2,3]:
+    print[x]
+    
+    1
+    2
+    3
+```
+
+
+```python
+# Here's another example:
+
+for x in range(-3,3):
+    print(x)
+```
+
+    -3
+    -2
+    -1
+    0
+    1
+    2
+
+
+
+```python
+# Here's a simple example from https://learnpythonthehardway.org/book/ex32.html
+
+the_count = [1, 2, 3, 4, 5]
+fruits = ['apples', 'oranges', 'pears', 'apricots']
+change = [1, 'pennies', 2, 'dimes', 3, 'quarters']
+
+# this first kind of for-loop goes through a list
+for number in the_count:
+    print "This is count %d" % number
+
+# same as above
+for fruit in fruits:
+    print "A fruit of type: %s" % fruit
+
+# also we can go through mixed lists too
+# notice we have to use %r since we don't know what's in it
+for i in change:
+    print "I got %r" % i
+
+# we can also build lists, first start with an empty one
+elements = []
+
+# then use the range function to do 0 to 5 counts
+for i in range(0, 6):
+    print "Adding %d to the list." % i
+    # append is a function that lists understand
+    elements.append(i)
+
+# now we can print them out too
+for i in elements:
+    print "Element was: %d" % i
+```
+
+    This is count 1
+    This is count 2
+    This is count 3
+    This is count 4
+    This is count 5
+    A fruit of type: apples
+    A fruit of type: oranges
+    A fruit of type: pears
+    A fruit of type: apricots
+    I got 1
+    I got 'pennies'
+    I got 2
+    I got 'dimes'
+    I got 3
+    I got 'quarters'
+    Adding 0 to the list.
+    Adding 1 to the list.
+    Adding 2 to the list.
+    Adding 3 to the list.
+    Adding 4 to the list.
+    Adding 5 to the list.
+    Element was: 0
+    Element was: 1
+    Element was: 2
+    Element was: 3
+    Element was: 4
+    Element was: 5
+
+
+
+```python
+# let's make a list of perfect squares
+# this is cool because we're doing it all in one line
+squares = [x**2 for x in range(0,8)]
+print(squares)
+```
+
+    [0, 1, 4, 9, 16, 25, 36, 49]
+
+
+### while loops
+
+- loops something until a condition is satisfied
+
+
+```python
+i = 0
+
+while i < 5:  # as long as i is less than 5, do this thing over and over
+    print(i)
+    i +=1     # set i to what it was before, but add one
+```
+
+    0
+    1
+    2
+    3
+    4
+
+
+## 5. Functions
+
+**Functions do three things:**
+
+- They name pieces of code the way variables name strings and numbers.
+- They take arguments the way your scripts take argv.
+- Using 1 and 2 they let you make your own "mini-scripts" or "tiny commands."
+
+You can create a function by using the word def in Python. I'm going to have you make four different functions that work like your scripts, and I'll then show you how each one is related.
+
+The simple one below just prints the word "test"
+
+
+```python
+def func0():
+    print("test")
+    
+func0()
+```
+
+    test
+
+
+
+```python
+def func1(s):
+    '''this is our second test function
+    s is the thing that will print'''
+    print ("You wrote "+s)
+    
+func1("aaa")
+
+help(func1)
+```
+
+    You wrote aaa
+    Help on function func1 in module __main__:
+    
+    func1(s)
+        this is our second test function
+        s is the thing that will print
+    
+
+
+
+```python
+def square(x):
+    """Return the square of x"""
+    return x ** 2
+
+# we set a to equal our function 
+a = square(4)
+print(a)
+```
+
+    16
+
+
+
+```python
+def powers(x):
+    """Return the first three powers of x"""
+    return x ** 2., x ** 3., x ** 4.
+
+# we set a to equal our function 
+print(powers(3))
+
+# the following saves the three results from the above function as three separate variables, named p2, p3, and p4
+# so now we can use them separately
+p2,p3,p4 = powers(3.)
+print(p2,p3,p4)
+print(p2 + p3 + p4)
+```
+
+    (9.0, 27.0, 81.0)
+    (9.0, 27.0, 81.0)
+    117.0
+
+
+
+```python
+def myfunc(x, p=2, debug=False):
+    if debug:
+        print ("I am in debug mode")
+        return x ** p
+    else:
+        print (x ** p)
+    
+print( myfunc(2,p=2,debug=True))
+```
+
+    I am in debug mode
+    4
+
+
+### Lambda functions
+
+- The only advantage of this is the fact that you can use it on one line
+- It's used a lot mainy because it's very compact
+
+
+```python
+fl = lambda x: x**2
+print (fl(2))
+```
+
+    4
+
+
+## 6. Classes
+
+- Python is called an "object-oriented programming language."
+- This means there is a construct in Python called a class that lets you structure your software in a particular way.  - Using classes, you can add consistency to your programs so that they can be used in a cleaner way.
+  - At least that's the theory...
+  - (https://learnpythonthehardway.org/book/ex40.html)
+  
+A class has variables, but also some fuctions that act on those variables.  All at the same time.
+
+See Dario's example below:
+
+
+```python
+class Point:
+    '''
+    Simple class for representing a point in a Cartesian plane
+    '''
+    def __init__(self, x, y):
+        '''
+        Create a new point at x, y
+        '''
+        self.x = x
+        self.y = y
+    def translate(self, dx, dy):
+        '''
+        translates a point by dx and 
+        '''
+        self.x += dx
+        self.y += dy
+    def __str__(self):
+        return("Point at [%f, %f]" % (self.x, self.y))
+        
+```
+
+
+```python
+pt = Point(0,0)
+print(pt)
+
+pt.translate(1,-1)
+print(pt)
+```
+
+    Point at [0.000000, 0.000000]
+    Point at [1.000000, -1.000000]
+
+
+## 7. Modules
+
+- Modules are like dictionaries
+- You know how a dictionary is created and used and that it is a way to map one thing to another. That means if you have a dictionary with a key "apple" and you want to get it then you do this:
+
+```python
+mystuff = {'apple': "I AM APPLES!"}
+print mystuff['apple']
+```
+
+Keep this idea of "get X from Y" in your head, and now think about modules. You've made a few so far, and you should know they are:
+
+1. A Python file with some functions or variables in it ..
+2. You import that file.
+3. And you can access the functions or variables in that module with the . (dot) operator.
+
+
+```python
+# this goes in mystuff.py
+def apple():
+    print "I AM APPLES!"
+
+# this is just a variable
+tangerine = "Living reflection of a dream"
+```
+
+## 8. Try and Except
+
+In Python errors are managed with a special language construct called "Exceptions". When errors occur exceptions can be raised, which interrupts the normal program flow and fallback to somewhere else in the code where the closest try-except statement is defined.
+To generate an exception we can use the raise statement, which takes an argument that must be an instance of the class BaseException or a class derived from it. 
+
+
+```python
+"""test = "Nuclear test"
+
+try:
+    print('test')
+    # generates an error: the variable test is not defined
+    #etc
+    
+    """
+```
+
+
+      File "<ipython-input-1-d31d321c142f>", line 8
+        
+        ^
+    SyntaxError: invalid syntax
+
+
+
+Ok to be honest I have no idea what the above is... oh well
+
+## 9. Plotting
+
+- type the following line at the beginning
+- this is so that plots will show up inside Jupyter, I don't think you need it in your code
+
+```python
+%matplotlib inline
+```
+
+### Basic Plotting
+
+- when Dario adds his notes for plotting I will paste it here
+- the following command will import the module and name it plt
+
+
+```python
+%matplotlib inline
+import matplotlib.pyplot as plt
+# numerical python = numpy
+import numpy as np
+```
+
+
+```python
+x = np.arange(0,1,0.1)
+y = x**2
+plt.plot(x,y)
+```
+
+
+
+
+    [<matplotlib.lines.Line2D at 0x10cbff290>]
+
+
+
+    /Users/jarredgreen/anaconda/lib/python2.7/site-packages/matplotlib/font_manager.py:273: UserWarning: Matplotlib is building the font cache using fc-list. This may take a moment.
+      warnings.warn('Matplotlib is building the font cache using fc-list. This may take a moment.')
+
+
+
+![png](output_166_2.png)
+
+
+
+```python
+#error bars example
+yerr = np.ones(x.size)*0.1 #ones creates an array of 1's
+plt.errorbar(x,y,yerr=yerr)
+plt.show()
+```
+
+
+![png](output_167_0.png)
+
+
+### See this link for more documentation
+- intro http://matplotlib.org/users/pyplot_tutorial.html
+- full beginners guide http://matplotlib.org/users/beginner.html
+- all documentations for matplotlib http://matplotlib.org/contents.html
 
 
 ```python
