@@ -35,6 +35,13 @@
     7. Modules
     8. Try and Accept
     9. Plotting
+  ### Lecture 6 — GUI Programming and Widgets
+    1. Install wxpython
+    2. Our first application: "Hello, World"
+    3. A simple text editor
+    4. Status bars & Menu bars
+    5. Event Handling
+    6. Buttons
 
 # Lecture 1 — Setting up
 ### January 9, 2017 (Morning)
@@ -1411,6 +1418,8 @@ print '#'.join(stuff[3:5]) # super stellar!
     Telephone#Light
 
 
+------
+
 # Lecture 5  — Introduction to Python, pt. 2
 ### January 11, 2017 (Afternoon)
 
@@ -1980,6 +1989,9 @@ Ok to be honest I have no idea what the above is... oh well
 
 ## 9. Plotting
 
+**See this guide for Dario's full tutorial on plotting with mathplotlib:            
+https://github.com/darioflute/CS4A/blob/master/Lecture-plotting.ipynb**
+
 - type the following line at the beginning
 - this is so that plots will show up inside Jupyter, I don't think you need it in your code
 
@@ -2019,7 +2031,7 @@ plt.plot(x,y)
 
 
 
-![png](output_166_2.png)
+![png](output_167_2.png)
 
 
 
@@ -2031,7 +2043,7 @@ plt.show()
 ```
 
 
-![png](output_167_0.png)
+![png](output_168_0.png)
 
 
 ### See this link for more documentation
@@ -2045,7 +2057,358 @@ plt.show()
 from mpl_toolkits.mplot3d.axes3d import Axes3D
 ```
 
+-------
+
+# Lecture 6 — GUI Programming and Widgets
+
+Todo
+1. Install wxpython
+2. Our first application: "Hello, World"
+3. A simple text editor
+4. Status bars & Menu bars
+5. Event Handling
+6. Buttons
+
+
+wxpython is basically just a python package that lets you make little windows and applications.
+there are many other packages that do the same thing
+Check them all out here! https://wiki.python.org/moin/GuiProgramming
+
+## 1. Install wxpython
+
+**This is quite confusing, and if you are curious to read more about this wxpython widget package check out the official documentation at https://wiki.wxpython.org/Getting%20Started**
+
+- To make a graphical interface to use a code in an interactive way we need a library of widgets, called wxpython.  We will explore the usage of this library mainly with examples.  But to start we have to install it with conda.
+
+- run the following command:
+
+```bash
+conda install wxpython
+```
+
+## 2. Our first application
+
+A traditional "Hello, World" application
+
 
 ```python
+%%writefile framecode.py
+#!/usr/bin/env pythonw                            #!/usr/bin/env python on linux
+import wx
 
+app = wx.App(False)                               #create a new app, don't redirect stdout/stderr to
+frame = wx.Frame(None, wx.ID_ANY, "Hello World")  # A frame is the top-level
+frame.Show(True)                                  #Show the frame
+app.MainLoop()
 ```
+
+    Overwriting framecode.py
+
+
+
+```python
+!pythonw framecode.py                             #!python framecode.py on linux
+```
+
+## 3. wx.TextCtrl widget  — A simple text editor
+
+This little app will let you type some text into a box.  Cool!!
+
+
+```python
+%%writefile editor.py
+#!/usr/bin/env pythonw
+import wx
+class MyFrame(wx.Frame):
+        """We simply derive a new class of frame"""
+        def __init__(self, parent, title):
+            wx.Frame.__init__(self, parent, title=title, size=(200,100))
+            self.control = wx.TextCtrl(self, style=wx.TE_MULTILINE)
+            self.Show(True)
+            
+app = wx.App(False)
+frame = MyFrame(None, 'Small editor')
+app.MainLoop()
+```
+
+
+```python
+!pythonw editor.py
+```
+
+## 4. Status bars & Menu bars
+
+
+```python
+%%writefile MainWindow.py
+#!/usr/bin/env pythonw
+import wx
+class MyFrame(wx.Frame):
+        """We simply derive a new class of frame"""
+        def __init__(self, parent, title):
+            wx.Frame.__init__(self, parent, title=title, size=(200,100))
+            self.control = wx.TextCtrl(self, style=wx.TE_MULTILINE)
+            self.CreateStatusBar() #A statusbar at the bottom of the window
+            
+            # setting up the menu.
+            filemenu= wx.Menu()
+            
+            # wx.ID_ABOUT and wx.ID_EXIT are standard IDs provided by wxWidgets
+            filemenu.Append(wx.ID_ABOUT, "&About"," Information about this program")
+            filemenu.AppendSeparator()
+            filemenu.Append(wx.ID_EDIT, "&Exit"," Terminate the program")
+            
+            # Creating the menubar
+            menuBar = wx.MenuBar()
+            menuBar.Append(filemenu, "&File") # adding the "filename" to the...
+            self.SetMenuBar(menuBar) # Adding the MenuBar for the Frame content
+            self.Show(True)
+            
+app = wx.App(False)
+frame = MyFrame(None, 'Sample editor')
+app.MainLoop()
+```
+
+    Overwriting MainWindow.py
+
+
+
+```python
+!pythonw MainWindow.py
+```
+
+## 5. Event Handling
+
+- Reacting to evens in wxPython is called event handling.
+- And event is when "something happens in your application
+  - eg button click, text input, mouse movement, etc)
+  - Much of GUI programming consists of responding to events
+  
+Cope same code as  
+
+
+```python
+%%writefile MenuActions.py
+#!/usr/bin/env pythonw
+import wx
+class MyFrame(wx.Frame):
+        """We simply derive a new class of frame"""
+        def __init__(self, parent, title):
+            wx.Frame.__init__(self, parent, title=title, size=(200,100))
+            self.control = wx.TextCtrl(self, style=wx.TE_MULTILINE)
+            self.CreateStatusBar() #A statusbar at the bottom of the window
+            
+            # setting up the menu.
+            filemenu= wx.Menu()
+            
+            # wx.ID_ABOUT and wx.ID_EXIT are standard IDs provided by wxWidgets
+            # give names to the following things
+            menuAbout = filemenu.Append(wx.ID_ABOUT, "&About"," Information about this program")
+            filemenu.AppendSeparator()
+            menuExit = filemenu.Append(wx.ID_EDIT, "&Exit"," Terminate the program")
+            
+            # Creating the menubar
+            menuBar = wx.MenuBar()
+            menuBar.Append(filemenu, "&File") # adding the "filename" to the...
+            self.SetMenuBar(menuBar) # Adding the MenuBar for the Frame content
+            
+            #New code beings here:
+            #set events:
+            self.Bind(wx.EVT_MENU, self.OnAbout, menuAbout)
+            self.Bind(wx.EVT_MENU, self.OnExit, menuExit)
+            self.Show(True)
+            
+        #add our new functions:
+        
+        def OnAbout(self,e):
+            # A message dialog box with an OK button, wx.OK is a standard ID
+            dlg = wx.MessageDialog( self, "I'm sorry.  sorry.  let's get burritos", "Actually Dominic, I KNEW IT", wx.OK)
+            dlg.ShowModal() #show it
+            dlg.Destroy() # destroy it when finished
+        
+        def OnExit(self,e):
+            self.Close(True) # close the frame
+            
+app = wx.App(False)
+frame = MyFrame(None, 'Sample editor')
+app.MainLoop()
+```
+
+    Overwriting MenuActions.py
+
+
+
+```python
+!pythonw MenuActions.py
+
+# Try going to the menu -> about
+# Try going to file -> Quit
+```
+
+### Now add an open command
+
+
+```python
+%%writefile MenuActionsOpen.py
+#!/usr/bin/env pythonw
+import wx
+import os
+class MyFrame(wx.Frame):
+        """We simply derive a new class of frame"""
+        def __init__(self, parent, title):
+            wx.Frame.__init__(self, parent, title=title, size=(200,100))
+            self.control = wx.TextCtrl(self, style=wx.TE_MULTILINE)
+            self.CreateStatusBar() #A statusbar at the bottom of the window
+            
+            # setting up the menu.
+            filemenu= wx.Menu()
+            
+            # wx.ID_ABOUT and wx.ID_EXIT are standard IDs provided by wxWidgets
+            # give names to the following things
+            menuOpen = filemenu.Append(wx.ID_OPEN, "&Open", " Open text file")  ###NEW
+            menuAbout = filemenu.Append(wx.ID_ABOUT, "&About"," Information about this program")
+            filemenu.AppendSeparator()
+            menuExit = filemenu.Append(wx.ID_EDIT, "&Exit"," Terminate the program")
+            
+            # Creating the menubar
+            menuBar = wx.MenuBar()
+            menuBar.Append(filemenu, "&File") # adding the "filename" to the...
+            self.SetMenuBar(menuBar) # Adding the MenuBar for the Frame content
+            
+            #New code beings here:
+            #set events:
+            self.Bind(wx.EVT_MENU, self.OnOpen, menuOpen)  ###New
+            self.Bind(wx.EVT_MENU, self.OnAbout, menuAbout)
+            self.Bind(wx.EVT_MENU, self.OnExit, menuExit)
+            self.Show(True)
+            
+        #add our new functions:
+        
+        def OnAbout(self,e):
+            # A message dialog box with an OK button, wx.OK is a standard ID
+            dlg = wx.MessageDialog( self, "I'm sorry.  sorry.  let's get burritos", "Actually Dominic, I KNEW IT", wx.OK)
+            dlg.ShowModal() #show it
+            dlg.Destroy() # destroy it when finished
+        
+        def OnExit(self,e):
+            self.Close(True) # close the frame
+            
+        def OnOpen(self,e):  ###NEW
+            """Open a file"""
+            self.dirname = ''
+            dlg = wx.FileDialog(self, "Choose a file", self.dirname, "", "*.*", wx.OPEN)
+            if dlg.ShowModal() == wx.ID_OK:
+                self.filename = dlg.GetFilename()
+                self.dirname = dlg.GetDirectory()
+                f = open(os.path.join(self.dirname, self.filename), 'r')
+                self.control.SetValue(f.read())
+                f.close()
+            dlg.Destroy()
+            
+app = wx.App(False)
+frame = MyFrame(None, 'Sample editor')
+app.MainLoop()
+```
+
+    Overwriting MenuActionsOpen.py
+
+
+
+```python
+!pythonw MenuActionsOpen.py
+```
+
+^ try adding a plain text file from the open menu!
+cool!
+
+## 6. Buttons
+
+
+```python
+%%writefile MenuButtons.py
+#!/usr/bin/env pythonw
+import wx
+import os
+class MyFrame(wx.Frame):
+        """We simply derive a new class of frame"""
+        def __init__(self, parent, title):
+            wx.Frame.__init__(self, parent, title=title, size=(500,500))
+            self.control = wx.TextCtrl(self, style=wx.TE_MULTILINE)
+            self.CreateStatusBar() #A statusbar at the bottom of the window
+            
+            # setting up the menu.
+            filemenu= wx.Menu()
+            
+            # wx.ID_ABOUT and wx.ID_EXIT are standard IDs provided by wxWidgets
+            # give names to the following things
+            menuOpen = filemenu.Append(wx.ID_OPEN, "&Open", " Open text file")
+            menuAbout = filemenu.Append(wx.ID_ABOUT, "&About"," Information about this program")
+            filemenu.AppendSeparator()
+            menuExit = filemenu.Append(wx.ID_EDIT, "&Exit"," Terminate the program")
+            
+            # Creating the menubar
+            menuBar = wx.MenuBar()
+            menuBar.Append(filemenu, "&File") # adding the "filename" to the...
+            self.SetMenuBar(menuBar) # Adding the MenuBar for the Frame content
+        
+            #set events:
+            self.Bind(wx.EVT_MENU, self.OnOpen, menuOpen)
+            self.Bind(wx.EVT_MENU, self.OnAbout, menuAbout)
+            self.Bind(wx.EVT_MENU, self.OnExit, menuExit)
+            
+            # New code here:
+            
+            self.sizer2 = wx.BoxSizer(wx.HORIZONTAL) # stack the buttons in a horizontal way
+            self.buttons = []
+            for i in range(0,6):  # this command adds the buttons
+                self.buttons.append(wx.Button(self, -1, "Button &"+str(i)))
+                self.sizer2.Add(self.buttons[i], 1, wx.EXPAND) 
+            
+            #use some sizers to see layout options
+            self.sizer = wx.BoxSizer(wx.VERTICAL) # stack the text box and the button box vertically
+            self.sizer.Add(self.control, 1, wx.EXPAND) # the text editor
+            self.sizer.Add(self.sizer2, 0, wx.EXPAND) # the box where the buttons go
+            
+            #Layout sizers
+            self.SetSizer(self.sizer)
+            self.SetAutoLayout(1)
+            self.sizer.Fit(self)
+            self.Show(True)
+        
+        def OnAbout(self,e):
+            # A message dialog box with an OK button, wx.OK is a standard ID
+            dlg = wx.MessageDialog( self, "I'm sorry.  sorry.  let's get burritos", "Actually Dominic, I KNEW IT", wx.OK)
+            dlg.ShowModal() #show it
+            dlg.Destroy() # destroy it when finished
+        
+        def OnExit(self,e):
+            self.Close(True) # close the frame
+            
+        def OnOpen(self,e):  ###NEW
+            """Open a file"""
+            self.dirname = ''
+            dlg = wx.FileDialog(self, "Choose a file", self.dirname, "", "*.*", wx.OPEN)
+            if dlg.ShowModal() == wx.ID_OK:
+                self.filename = dlg.GetFilename()
+                self.dirname = dlg.GetDirectory()
+                f = open(os.path.join(self.dirname, self.filename), 'r')
+                self.control.SetValue(f.read())
+                f.close()
+            dlg.Destroy()
+            
+app = wx.App(False)
+frame = MyFrame(None, 'Sample editor')
+app.MainLoop()
+```
+
+    Overwriting MenuButtons.py
+
+
+
+```python
+!pythonw MenuButtons.py
+```
+
+^ try changing the HORIZONTALs to VERTICALs and seeing what happens :)
+
+------
