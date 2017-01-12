@@ -2041,5 +2041,11 @@ plt.show()
 
 
 ```python
+#3D plotting documents
+from mpl_toolkits.mplot3d.axes3d import Axes3D
+```
+
+
+```python
 
 ```
