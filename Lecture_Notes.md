@@ -2412,3 +2412,260 @@ app.MainLoop()
 ^ try changing the HORIZONTALs to VERTICALs and seeing what happens :)
 
 ------
+
+# Lecture 7 — More Widgets
+
+Todo
+1. A multi-featured widget
+2. Notebook Demo
+3. Adding a grid
+
+## 1. A multi-featured widget
+
+
+```python
+%%writefile example.py
+import wx
+import os
+class ExamplePanel (wx.Panel):
+    def __init__(self, parent):
+        wx.Panel.__init__(self,parent)
+        self.quote= wx.StaticText(self, label="Your Quote :", pos=(20,30))
+        self.logger = wx.TextCtrl(self, pos=(320,20), size=(200,300), style=wx.TE_MULTILINE | wx.TE_READONLY)
+
+        # A button
+        self.button = wx.Button(self, label="Save", pos=(200, 325))
+        self.Bind(wx.EVT_BUTTON, self.OnClick,self.button)
+
+        # the edit control - one line version
+        self.lblname = wx.StaticText(self, label="Your name :", pos=(20,60))
+        self.editname = wx.TextCtrl(self, value="Enter here your name", pos=(150,60), size=(140,-1))
+        self.Bind(wx.EVT_TEXT,self.EvtText,self.editname)
+        self.Bind(wx.EVT_CHAR,self.EvtChar,self.editname)
+
+        # the combobox Control
+        self.sampleList = ['friends', 'advertising', 'web search', 'Yellow Pages']
+        self.lblhear = wx.StaticText(self, label="How did you hear from us?", pos=(20,90))
+        self.edithear = wx.ComboBox(self, pos=(197,88),size=(95,-1),choices=self.sampleList, style=wx.CB_DROPDOWN)
+        self.Bind(wx.EVT_COMBOBOX,self.EvtComboBox,self.edithear)
+        self.Bind(wx.EVT_TEXT,self.EvtText,self.edithear)
+
+        self.insure=wx.CheckBox(self,label="Do you want Insured Shipment?", pos=(20,180))
+        self.Bind(wx.EVT_CHECKBOX,self.EvtCheckBox,self.insure)
+
+        # Radio Boxes
+        radioList = ['blue','red','yellow','orange','green','purple','navy blue','black','gray']
+        rb = wx.RadioBox(self,label="What color whould you like?", pos=(20,210), choices=radioList, majorDimension=3,style=wx.RA_SPECIFY_COLS)
+        self.Bind(wx.EVT_RADIOBOX,self.EvtRadioBox,rb)
+    
+    def EvtRadioBox(self,event):
+        self.logger.AppendText('EvtRadioBox: %d\n' % event.GetInt())
+    def EvtComboBox(self,event):
+        self.logger.AppendText('EvtComboBox %s/n' % event.GetString())
+    def OnClick(self,event):
+        self.logger.AppendText('Click on an object with ID %d\n' % event.GetId())
+    def EvtText(self,event):
+        self.logger.AppendText('EvtText: %s\n' % event.GetString())
+    def EvtChar(self,event):
+        self.logger.AppendText('EvtChar: %d\n' % event.GetKeyCode())
+    def EvtCheckBox(self,event):
+        self.logger.AppendText('EvtCheckBox: %d\n' % event.Checked())
+```
+
+    Overwriting example.py
+
+
+
+```python
+%%writefile control_demo.py
+import wx
+from example import ExamplePanel
+
+app = wx.App(False)
+frame = wx.Frame(None,size=(550,400))
+panel = ExamplePanel(frame)
+frame.Show()
+app.MainLoop()
+```
+
+    Overwriting control_demo.py
+
+
+
+```python
+!pythonw control_demo.py
+```
+
+## 2. Notebook Demo
+
+
+```python
+%%writefile notebook_demo.py
+import wx
+from example import ExamplePanel
+
+app = wx.App(False)
+frame = wx.Frame(None, title="Demo with Notebook", size=(600,500))
+nb = wx.Notebook(frame)
+
+nb.AddPage(ExamplePanel(nb), "Absolute Positioning")
+nb.AddPage(ExamplePanel(nb), "Page Two")
+nb.AddPage(ExamplePanel(nb), "Page Three")
+frame.Show()
+app.MainLoop()
+```
+
+    Overwriting notebook_demo.py
+
+
+
+```python
+!pythonw notebook_demo.py
+```
+
+## 3. Adding a grid
+- we will add a grid so all the things line up nicely
+
+
+```python
+%%writefile example.py
+import wx
+import os
+class ExamplePanel (wx.Panel):
+    def __init__(self, parent):
+        wx.Panel.__init__(self,parent)
+        
+        # create some sizers
+        # NEW CODE:
+        mainSizer = wx.BoxSizer(wx.VERTICAL)
+        grid = wx. GridBagSizer(hgap=5, vgap=5)
+        hSizer = wx.BoxSizer(wx.HORIZONTAL)
+        
+        self.quote= wx.StaticText(self, label="Your Quote :")
+        grid.Add(self.quote, pos=(0,0))  #NEW LINE
+        
+        # A multiline textctrl - this is here to show how the events work
+        self.logger = wx.TextCtrl(self, size=(200,300), style=wx.TE_MULTILINE | wx.TE_READONLY)
+
+        # A button
+        self.button = wx.Button(self, label="Save")
+        grid.Add(self.button, pos=(0,1))
+        self.Bind(wx.EVT_BUTTON, self.OnClick,self.button)
+
+        # the edit control - one line version
+        self.lblname = wx.StaticText(self, label="Your name :")
+        grid.Add(self.lblname, pos=(1,0))
+        self.editname = wx.TextCtrl(self, value="Enter here your name", size=(140,-1))
+        grid.Add(self.editname, pos=(1,1))
+        self.Bind(wx.EVT_TEXT,self.EvtText,self.editname)
+        self.Bind(wx.EVT_CHAR,self.EvtChar,self.editname)
+
+        # the combobox Control
+        self.sampleList = ['friends', 'advertising', 'web search', 'Yellow Pages']
+        self.lblhear = wx.StaticText(self, label="How did you hear from us?")
+        grid.Add(self.lblhear, pos=(3,0))
+        self.edithear = wx.ComboBox(self, size=(95,-1),choices=self.sampleList, style=wx.CB_DROPDOWN)
+        grid.Add(self.edithear, pos=(3,1))
+        self.Bind(wx.EVT_COMBOBOX,self.EvtComboBox,self.edithear)
+        self.Bind(wx.EVT_TEXT,self.EvtText,self.edithear)
+        
+        # add a spacer to the sizer
+        grid.Add((10,40), pos=(2,0))   # NEW LINE
+
+        # check box
+        self.insure=wx.CheckBox(self,label="Do you want Insured Shipment?")
+        grid.Add(self.insure, pos=(4,0), span=(1,2), flag=wx.BOTTOM, border=5) # NEW LINE
+        self.Bind(wx.EVT_CHECKBOX,self.EvtCheckBox,self.insure)
+
+        # Radio Boxes
+        radioList = ['blue','red','yellow','orange','green','purple','navy blue','black','gray']
+        rb = wx.RadioBox(self,label="What color whould you like?", choices=radioList, majorDimension=3,style=wx.RA_SPECIFY_COLS)
+        grid.Add(rb, pos=(5,0), span=(1,2)) #NEW LINE
+        self.Bind(wx.EVT_RADIOBOX,self.EvtRadioBox,rb)
+        
+        # NEW CODE
+        hSizer.Add(grid, 0, wx.ALL, 5)
+        hSizer.Add(self.logger)
+        mainSizer.Add(hSizer, 0, wx.ALL, 5)
+        mainSizer.Add(self.button, 0 , wx.CENTER)
+        self.SetSizerAndFit(mainSizer)
+        
+    
+    def EvtRadioBox(self,event):
+        self.logger.AppendText('EvtRadioBox: %d\n' % event.GetInt())
+    def EvtComboBox(self,event):
+        self.logger.AppendText('EvtComboBox %s/n' % event.GetString())
+    def OnClick(self,event):
+        self.logger.AppendText('Click on an object with ID %d\n' % event.GetId())
+    def EvtText(self,event):
+        self.logger.AppendText('EvtText: %s\n' % event.GetString())
+    def EvtChar(self,event):
+        self.logger.AppendText('EvtChar: %d\n' % event.GetKeyCode())
+    def EvtCheckBox(self,event):
+        self.logger.AppendText('EvtCheckBox: %d\n' % event.Checked())
+```
+
+    Overwriting example.py
+
+
+
+```python
+!pythonw control_demo.py
+```
+
+## 4. Adding images
+
+
+
+```python
+%%writefile mpl_demo.py
+#!/usr/bin/env python
+#import wxversion
+#wxversion.ensureMinimal('2.8')
+
+from numpy import arange, sin, pi
+from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
+from matplotlib.figure import Figure
+import wx
+
+class CanvasFrame(wx.Frame):
+    def __init__(self):
+        wx.Frame.__init__(self, None, -1,
+                          'CanvasFrame', size=(550, 350))
+
+        self.figure = Figure()
+        self.axes = self.figure.add_subplot(111)
+        t = arange(0.0, 3.0, 0.01)
+        s = sin(2 * pi * t)
+
+        self.axes.plot(t, s)
+        self.canvas = FigureCanvas(self, -1, self.figure)
+
+        self.sizer = wx.BoxSizer(wx.VERTICAL)
+        self.sizer.Add(self.canvas, 1, wx.LEFT | wx.TOP | wx.EXPAND)
+        self.SetSizer(self.sizer)
+        self.Fit()
+
+class App(wx.App):
+    def OnInit(self):
+        'Create the main window and insert the custom frame'
+        frame = CanvasFrame()
+        frame.Show(True)
+        return True
+
+app = App(0)
+app.MainLoop()
+```
+
+    Overwriting mpl_demo.py
+
+
+
+```python
+!pythonw mpl_demo.py
+```
+
+
+```python
+
+```
