@@ -42,6 +42,40 @@
     4. Status bars & Menu bars
     5. Event Handling
     6. Buttons
+    
+  ### Lecture 7 — More Widgets
+    1. A multi-featured widget
+    2. Notebook Demo
+    3. Adding a grid
+  ### Lecture 8 — Intro to astro py
+    1. setup
+    2. intro to FITS Files
+    3. opening FITS files in a more general way
+    4. coordinate transformations
+    5. cutouts
+    6. saving a FITS files
+    7. tables in astropy
+    8. making a table
+    9. astronomical units
+    10. astronomical constants
+    11. astronomical query
+    12. histograms
+  ### Lecture 9 — Work on project
+    1. project outline
+    2. work on project
+  ### Lecture 10 — Intro to numpy
+    1. creating arrays
+    2. linspace and logspace
+    3. 2D arrays
+    4. random numbers
+    5. diagonal matricies
+    6. working with CSVs
+    7. numpy native format .npy
+    8. more numpy features
+    9. manipulating arrays
+    
+    
+--------
 
 # Lecture 1 — Setting up
 ### January 9, 2017 (Morning)
@@ -2060,6 +2094,7 @@ from mpl_toolkits.mplot3d.axes3d import Axes3D
 -------
 
 # Lecture 6 — GUI Programming and Widgets
+### January 12, 2017 (Morning)
 
 Todo
 1. Install wxpython
@@ -2414,6 +2449,7 @@ app.MainLoop()
 ------
 
 # Lecture 7 — More Widgets
+### January 13, 2017 (Morning)
 
 Todo
 1. A multi-featured widget
@@ -2664,6 +2700,1387 @@ app.MainLoop()
 ```python
 !pythonw mpl_demo.py
 ```
+
+-------
+
+# Lecture 8 — Intro to astropy
+### January 16, 2017 (Morning)
+
+Todo
+1. setup
+2. intro to FITS Files
+3. opening FITS files in a more general way
+4. coordinate transformations
+5. cutouts
+6. saving a FITS files
+7. tables in astropy
+8. making a table
+9. astronomical units
+10. astronomical constants
+11. astronomical query
+12. histograms
+
+## 1. Setup
+
+**Note: Dario's notes for this lecture**
+
+**http://localhost:8888/notebooks/CS4A/Lecture-astronomy.ipynb**
+
+```bash
+conda install astropy
+conda install -c astropy astroquery
+```
+
+## 2. Intro to FITS  files
+
+- Allows you to store images, even those in several dimensions, as binary files.
+- Very popular for astronmy
+- Images from a telescope
+- The Vatican library is storing its images as FITS files (haha!)
+    - Remember when the Vatican hated astronomers?  #TBT
+    
+### Reading a FITS file
+use:
+```python
+from astronomy.io import fits
+```
+
+run the command below to import an example FITS file
+
+
+```python
+from astropy.utils.data import download_file
+from astropy.io import fits
+
+image_file = download_file('https://astropy.stsci.edu/data/tutorials/FITS-images/HorseHead.fits', cache=True)
+```
+
+
+```python
+fits.info(image_file)
+```
+
+    Filename: /Users/jarredgreen/.astropy/cache/download/py2/2c9202ae878ecfcb60878ceb63837f5f
+    No.    Name         Type      Cards   Dimensions   Format
+      0  PRIMARY     PrimaryHDU     161   (891, 893)   int16   
+      1  er.mask     TableHDU        25   1600R x 4C   [F6.2, F6.2, F6.2, F6.2]   
+
+
+
+```python
+#check its shape:
+image_data = fits.getdata(image_file, ext=0)
+image_data.shape
+```
+
+
+
+
+    (893, 891)
+
+
+
+
+```python
+import matplotlib.pyplot as plt
+%matplotlib inline
+
+plt.figure()
+plt.imshow(image_data, cmap='gist_heat', origin='lower')
+plt.colorbar();
+```
+
+
+![png](output_212_0.png)
+
+
+## 3. Opening FITS in a more general way
+
+
+```python
+hdulist = fits.open(image_file)
+hdulist.info()
+```
+
+    Filename: /Users/jarredgreen/.astropy/cache/download/py2/2c9202ae878ecfcb60878ceb63837f5f
+    No.    Name         Type      Cards   Dimensions   Format
+      0  PRIMARY     PrimaryHDU     161   (891, 893)   int16   
+      1  er.mask     TableHDU        25   1600R x 4C   [F6.2, F6.2, F6.2, F6.2]   
+
+
+
+```python
+header = hdulist['PRIMARY'].header
+data = hdulist['PRIMARY'].data
+```
+
+
+```python
+# to clear the item from your memory
+hdulist.close
+```
+
+
+
+
+    <bound method HDUList.close of [<astropy.io.fits.hdu.image.PrimaryHDU object at 0x111c56dd0>, <astropy.io.fits.hdu.table.TableHDU object at 0x111cc14d0>]>
+
+
+
+
+```python
+# Now let's explore the header
+print(repr(header[:10]))  # beginning of the header
+```
+
+    SIMPLE  =                    T /FITS: Compliance                                
+    BITPIX  =                   16 /FITS: I*2 Data                                  
+    NAXIS   =                    2 /FITS: 2-D Image Data                            
+    NAXIS1  =                  891 /FITS: X Dimension                               
+    NAXIS2  =                  893 /FITS: Y Dimension                               
+    EXTEND  =                    T /FITS: File can contain extensions               
+    DATE    = '2014-01-09        '  /FITS: Creation Date                            
+    ORIGIN  = 'STScI/MAST'         /GSSS: STScI Digitized Sky Survey                
+    SURVEY  = 'SERC-ER '           /GSSS: Sky Survey                                
+    REGION  = 'ER768   '           /GSSS: Region Name                               
+
+
+
+```python
+# how to see the coordinates on the sky
+
+from astropy.wcs import WCS
+wcs = WCS(header)
+print wcs
+```
+
+    WCS Keywords
+    
+    Number of WCS axes: 2
+    CTYPE : 'RA---TAN'  'DEC--TAN'  
+    CRVAL : 85.599416666666656  -4.9466388888888888  
+    CRPIX : -716.333144294269  -8444.6494669822605  
+    PC1_1 PC1_2  : 0.015029018460682027  -9.6373577765719806e-06  
+    PC2_1 PC2_2  : 1.0548917307845708e-05  0.015000473845055023  
+    CDELT : -0.018654788242111486  0.018654788242111486  
+    NAXIS : 891  893
+
+
+
+```python
+# now let's actually plot the figure with coordinates
+
+# FINISH these notes
+fig = plt.figure()
+ax = fig.add_axes([0.1, 0.1, 0.8, 0.8], projection=wcs)
+ax.set_xlabel('RA')
+ax.set_ylabel('Dec')
+ax.imshow(data, cmap='gist_heat',origin='lower')
+ra = ax.coords[0]
+ra.set_major_formatter('hh:mm:ss')
+dec = ax.coords[1]
+dec.set_major_formatter('dd:mm:ss')
+```
+
+
+![png](output_219_0.png)
+
+
+## 4. Coordinate transformations
+
+
+```python
+# now let's compute the coordinates of the center of the horse head:
+
+from astropy.coordinates import SkyCoord
+c0 = SkyCoord('5h41m00s','-2d27m00s',frame='icrs')
+print c0
+```
+
+    <SkyCoord (ICRS): (ra, dec) in deg
+        ( 85.25, -2.45)>
+
+
+### From pixel coordinates and vice versa
+
+
+```python
+# from pixel -> world
+
+# from world -> pixel
+```
+
+
+```python
+# e.g.
+
+center = wcs.all_world2pix(c0.ra,c0.dec,0)
+print (center)
+```
+
+    [array(534.1235215073059), array(475.55046970355943)]
+
+
+## 5. Cutouts
+
+- what to do when you only need a part of the image
+- here we use the class Cutout2D
+
+
+```python
+from astropy.nddata import Cutout2D
+size = 400
+cutout = Cutout2D(data, center, size, wcs=wcs)
+
+print cutout.bbox_original
+```
+
+    ((276, 675), (334, 733))
+
+
+
+```python
+fig = plt.figure()
+ax = fig.add_axes([0.1,0.1,0.8,0.8], projection=cutout.wcs)
+ax.set_xlabel('RA')
+ax.set_ylabel('Dec')
+ax.imshow(cutout.data, cmap='gist_heat', origin='lower')
+ra = ax.coords[0]
+ra.set_major_formatter('hh:mm:ss')
+dec = ax.coords[1]
+dec.set_major_formatter('dd:mm:ss');
+```
+
+
+![png](output_227_0.png)
+
+
+## 6. Saving a new FITS file
+
+
+```python
+# Making a Primary HDU
+# finish this...
+```
+
+
+```python
+# the overwrite = True allows us to rewrite over the old file
+
+cheader = cutout.wcs.to_header()
+primaryhdu = fits.PrimaryHDU(cutout.data, cheader)
+hdulist = fits.HDUList([primaryhdu])
+hdulist.writeto('horse.fits', overwrite=True)
+```
+
+## 7. Tables in astropy
+
+- You can also use the FITS interface to open tables
+
+```python
+from astropy.table import Table
+#getting the first table
+t1 = Table.read(filename.fits)
+```
+
+- if you go back and look at the log for the horsehead file, yo ucan see that we also have a table in extension 1
+
+
+```python
+from astropy.table import Table
+t = Table.read(image_file, hdu=1)
+t[:10].show_in_notebook()
+```
+
+    WARNING: UnitsWarning: 'DEGREES' did not parse as fits unit: At col 0, Unit 'DEGREES' not supported by the FITS standard.  [astropy.units.core]
+    WARNING: UnitsWarning: 'ARCSEC' did not parse as fits unit: At col 0, Unit 'ARCSEC' not supported by the FITS standard. Did you mean arcsec? [astropy.units.core]
+
+
+
+
+
+&lt;Table length=10&gt;
+<table id="table4593769168-113304" class="table-striped table-bordered table-condensed">
+<thead><tr><th>idx</th><th>XI</th><th>ETA</th><th>XI_CORR</th><th>ETA_CORR</th></tr></thead>
+<thead><tr><th></th><th>DEGREES</th><th>DEGREES</th><th>ARCSEC</th><th>ARCSEC</th></tr></thead>
+<tr><td>0</td><td>-3.12</td><td>-3.12</td><td>0.09</td><td>0.04</td></tr>
+<tr><td>1</td><td>-2.96</td><td>-3.12</td><td>0.02</td><td>0.07</td></tr>
+<tr><td>2</td><td>-2.8</td><td>-3.12</td><td>-0.07</td><td>0.15</td></tr>
+<tr><td>3</td><td>-2.64</td><td>-3.12</td><td>-0.17</td><td>0.25</td></tr>
+<tr><td>4</td><td>-2.48</td><td>-3.12</td><td>-0.29</td><td>0.26</td></tr>
+<tr><td>5</td><td>-2.32</td><td>-3.12</td><td>-0.38</td><td>0.25</td></tr>
+<tr><td>6</td><td>-2.16</td><td>-3.12</td><td>-0.42</td><td>0.15</td></tr>
+<tr><td>7</td><td>-2.0</td><td>-3.12</td><td>-0.48</td><td>0.06</td></tr>
+<tr><td>8</td><td>-1.84</td><td>-3.12</td><td>-0.47</td><td>-0.01</td></tr>
+<tr><td>9</td><td>-1.68</td><td>-3.12</td><td>-0.47</td><td>-0.12</td></tr>
+</table><style>table.dataTable {clear: both; width: auto !important; margin: 0 !important;}
+.dataTables_info, .dataTables_length, .dataTables_filter, .dataTables_paginate{
+display: inline-block; margin-right: 1em; }
+.paginate_button { margin-right: 5px; }
+</style>
+<script>
+require.config({paths: {
+    datatables: 'https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min'
+}});
+require(["datatables"], function(){
+    console.log("$('#table4593769168-113304').dataTable()");
+    $('#table4593769168-113304').dataTable({
+        "order": [],
+        "iDisplayLength": 50,
+        "aLengthMenu": [[10, 25, 50, 100, 500, 1000, -1], [10, 25, 50, 100, 500, 1000, 'All']],
+        "pagingType": "full_numbers"
+    });
+});
+</script>
+
+
+
+
+
+```python
+# you can also just print the table
+
+from astropy.table import Table
+t = Table.read(image_file, hdu=1)
+print(t[:10])
+```
+
+       XI     ETA   XI_CORR ETA_CORR
+    DEGREES DEGREES  ARCSEC  ARCSEC 
+    ------- ------- ------- --------
+      -3.12   -3.12    0.09     0.04
+      -2.96   -3.12    0.02     0.07
+       -2.8   -3.12   -0.07     0.15
+      -2.64   -3.12   -0.17     0.25
+      -2.48   -3.12   -0.29     0.26
+      -2.32   -3.12   -0.38     0.25
+      -2.16   -3.12   -0.42     0.15
+       -2.0   -3.12   -0.48     0.06
+      -1.84   -3.12   -0.47    -0.01
+      -1.68   -3.12   -0.47    -0.12
+
+
+- a table is bot ha dictionary and numpy arry like datatype that can be acceped by a key (for columns) or index (for rows)
+- this can be useful if you have a table with many colums and you only need a few
+
+
+```python
+# e.g.
+import numpy as np
+print t[np.where(t['ETA_CORR'] > 0.8)]
+```
+
+       XI     ETA   XI_CORR ETA_CORR
+    DEGREES DEGREES  ARCSEC  ARCSEC 
+    ------- ------- ------- --------
+      -0.24    2.96   -0.11     0.81
+      -0.08    2.96   -0.06     0.86
+       0.08    2.96    0.05     0.88
+       0.24    2.96    0.13     0.82
+      -0.24    3.12   -0.12     0.85
+      -0.08    3.12   -0.07      0.9
+       0.08    3.12    0.07     0.91
+       0.24    3.12     0.2      0.9
+        0.4    3.12    0.23     0.83
+
+
+## 8. Making a table
+
+-- see his example --
+
+
+```python
+import numpy as np
+a = np.arange(0,10,0.1)
+b = a**2
+t1 = Table([a,b], names=('a','b'))
+
+plt.plot(t1['a'],t1['b']);
+
+```
+
+
+![png](output_237_0.png)
+
+
+### Saving your table
+
+
+```python
+t1.write('table.txt',format='ascii.tab')
+```
+
+    WARNING: AstropyDeprecationWarning: table.txt already exists. Automatically overwriting ASCII files is deprecated. Use the argument 'overwrite=True' in the future. [astropy.io.ascii.ui]
+
+
+
+```python
+!cat table.txt
+```
+
+    a	b
+    0.0	0.0
+    0.1	0.010000000000000002
+    0.2	0.04000000000000001
+    0.30000000000000004	0.09000000000000002
+    0.4	0.16000000000000003
+    0.5	0.25
+    0.6000000000000001	0.3600000000000001
+    0.7000000000000001	0.4900000000000001
+    0.8	0.6400000000000001
+    0.9	0.81
+    1.0	1.0
+    1.1	1.2100000000000002
+    1.2000000000000002	1.4400000000000004
+    1.3	1.6900000000000002
+    1.4000000000000001	1.9600000000000004
+    1.5	2.25
+    1.6	2.5600000000000005
+    1.7000000000000002	2.8900000000000006
+    1.8	3.24
+    1.9000000000000001	3.6100000000000003
+    2.0	4.0
+    2.1	4.41
+    2.2	4.840000000000001
+    2.3000000000000003	5.290000000000001
+    2.4000000000000004	5.760000000000002
+    2.5	6.25
+    2.6	6.760000000000001
+    2.7	7.290000000000001
+    2.8000000000000003	7.840000000000002
+    2.9000000000000004	8.410000000000002
+    3.0	9.0
+    3.1	9.610000000000001
+    3.2	10.240000000000002
+    3.3000000000000003	10.890000000000002
+    3.4000000000000004	11.560000000000002
+    3.5	12.25
+    3.6	12.96
+    3.7	13.690000000000001
+    3.8000000000000003	14.440000000000001
+    3.9000000000000004	15.210000000000003
+    4.0	16.0
+    4.1000000000000005	16.810000000000006
+    4.2	17.64
+    4.3	18.49
+    4.4	19.360000000000003
+    4.5	20.25
+    4.6000000000000005	21.160000000000004
+    4.7	22.090000000000003
+    4.800000000000001	23.040000000000006
+    4.9	24.010000000000005
+    5.0	25.0
+    5.1000000000000005	26.010000000000005
+    5.2	27.040000000000003
+    5.300000000000001	28.090000000000007
+    5.4	29.160000000000004
+    5.5	30.25
+    5.6000000000000005	31.360000000000007
+    5.7	32.49
+    5.800000000000001	33.64000000000001
+    5.9	34.81
+    6.0	36.0
+    6.1000000000000005	37.21000000000001
+    6.2	38.440000000000005
+    6.300000000000001	39.69000000000001
+    6.4	40.96000000000001
+    6.5	42.25
+    6.6000000000000005	43.56000000000001
+    6.7	44.89
+    6.800000000000001	46.24000000000001
+    6.9	47.61000000000001
+    7.0	49.0
+    7.1000000000000005	50.41000000000001
+    7.2	51.84
+    7.300000000000001	53.29000000000001
+    7.4	54.760000000000005
+    7.5	56.25
+    7.6000000000000005	57.760000000000005
+    7.7	59.290000000000006
+    7.800000000000001	60.84000000000001
+    7.9	62.410000000000004
+    8.0	64.0
+    8.1	65.61
+    8.200000000000001	67.24000000000002
+    8.3	68.89000000000001
+    8.4	70.56
+    8.5	72.25
+    8.6	73.96
+    8.700000000000001	75.69000000000001
+    8.8	77.44000000000001
+    8.9	79.21000000000001
+    9.0	81.0
+    9.1	82.80999999999999
+    9.200000000000001	84.64000000000001
+    9.3	86.49000000000001
+    9.4	88.36000000000001
+    9.5	90.25
+    9.600000000000001	92.16000000000003
+    9.700000000000001	94.09000000000002
+    9.8	96.04000000000002
+    9.9	98.01
+
+
+## 9. Astronomical units
+
+- astropy provides a way to manipulate quantities, automatically taking care of unit conversions automatically
+- that's amazing!!!
+
+```python
+from astropy import units as u
+#defining quantities with units:
+val1, val2 = 30.2 * u.cm, 2.2E4 * u.s
+val3 = val1 / val2 # will be units cm/s
+#converting units
+val3km = val3.to(u.km/u.s)
+#simplifying
+val4 = (10.3 * u.s / (3* u.Hz)).decompose()
+```
+
+
+```python
+from astropy import units as u
+
+val = 30.3 * u.cm
+print val.to(u.km)
+
+# convert
+val1 = 10 * u.km
+val2 = 100. * u.m
+
+#simplify
+print (val1/val2).decompose()
+```
+
+    0.000303 km
+    100.0
+
+
+
+```python
+val1 = 5 * u.m
+val2 = 6 * u.s
+print(val1/val2)
+```
+
+    0.833333333333 m / s
+
+
+## 10. Astronomical constants
+
+- also so helpful!
+
+```python
+from astropy import constants as c
+# some constants
+c.k_B, c_c, c.M_sun, c.L_sun
+# can use with units
+energy = c.h * 30 * u.Ghz
+# can also convert units
+```
+
+
+
+```python
+from astropy import constants as c
+
+print 'solarmass: ', c.M_sun.value, c.M_sun.unit,'\n'
+
+print (c.c)
+```
+
+    solarmass:  1.9891e+30 kg 
+    
+      Name   = Speed of light in vacuum
+      Value  = 299792458.0
+      Uncertainty  = 0.0
+      Unit  = m / s
+      Reference = CODATA 2010
+
+
+
+```python
+# this is a great way to convert to cgs units
+print c.c.cgs
+```
+
+    29979245800.0 cm / s
+
+
+## 11. Astronomical query
+- we can use this to query databases.  cool!
+- we will do an example with SDSS
+
+
+```python
+from astroquery.sdss import SDSS
+from astropy import coordinates as coords
+pos = coords.SkyCoord('13h10m27.46s +18d26m17.4s', frame='icrs')
+xid = SDSS.query_region(pos, spectro=True)
+xid
+```
+
+    /Users/jarredgreen/anaconda/lib/python2.7/site-packages/astroquery/sdss/__init__.py:28: UserWarning: Experimental: SDSS has not yet been refactored to have its API match the rest of astroquery (but it's nearly there).
+      warnings.warn("Experimental: SDSS has not yet been refactored to have its API "
+
+
+
+
+
+&lt;Table length=1&gt;
+<table id="table4523387984" class="table-striped table-bordered table-condensed">
+<thead><tr><th>ra</th><th>dec</th><th>objid</th><th>run</th><th>rerun</th><th>camcol</th><th>field</th><th>z</th><th>plate</th><th>mjd</th><th>fiberID</th><th>specobjid</th><th>run2d</th><th>instrument</th></tr></thead>
+<thead><tr><th>float64</th><th>float64</th><th>int64</th><th>int64</th><th>int64</th><th>int64</th><th>int64</th><th>float64</th><th>int64</th><th>int64</th><th>int64</th><th>int64</th><th>int64</th><th>str4</th></tr></thead>
+<tr><td>197.614455643</td><td>18.4381688537</td><td>1237668296598749280</td><td>5314</td><td>301</td><td>1</td><td>136</td><td>0.0124487</td><td>2618</td><td>54506</td><td>310</td><td>2947691243863304192</td><td>26</td><td>SDSS</td></tr>
+</table>
+
+
+
+- now we can get the specra and images for this list of objects using the following commands.
+- we will obtain a list with as many objects as the list from xid
+- in this case, it's only one object
+
+
+```python
+sp = SDSS.get_spectra(matches=xid)
+im = SDSS.get_images(matches=xid, band='r')
+
+print len(sp), len(im)
+```
+
+    1 1
+
+
+- we can also access the SDSS template library
+- for instance we will get **qso** template with the command:
+
+
+```python
+template = SDSS.get_spectral_template('qso')
+print len(template)
+```
+
+    1
+
+
+- let's go back to the image
+- we can emplore what is inside using the **.info** method:
+
+
+```python
+hdulist = im[0]
+hdulist.info()
+```
+
+    Filename: (No file associated with this HDUList)
+    No.    Name         Type      Cards   Dimensions   Format
+      0  PRIMARY     PrimaryHDU      96   (2048, 1489)   float32   
+      1              ImageHDU         6   (2048,)   float32   
+      2              BinTableHDU     27   1R x 3C   [49152E, 2048E, 1489E]   
+      3              BinTableHDU     79   1R x 31C   [J, 3A, J, A, D, D, 2J, J, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, E, E]   
+
+
+- now let's extract the data
+
+
+```python
+header = hdulist[0].header
+data = hdulist[0].data #image in lst extension
+print (data.shape, data.dtype.name)
+
+import numpy as np
+plt.imshow(np.sqrt(data+1.),origin='lower', cmap='gist_heat', vmax=1.1,vmin=0.9)
+plt.colorbar();
+```
+
+    ((1489, 2048), 'float32')
+
+
+
+![png](output_256_1.png)
+
+
+
+```python
+# Now plot with coordinates:
+
+header = hdulist[0].header
+data = hdulist[0].data #image in lst extension
+print (data.shape, data.dtype.name)
+
+fig = plt.figure()
+ax = fig.add_axes([0.1,0.1,0.8,0.8], projection=cutout.wcs)
+ax.set_xlabel('RA')
+ax.set_ylabel('Dec')
+ax.imshow(np.sqrt(data+1.),origin='lower', cmap='gist_heat', vmax=1.1,vmin=0.9)
+ra = ax.coords[0]
+ra.set_major_formatter('hh:mm:ss')
+dec = ax.coords[1]
+dec.set_major_formatter('dd:mm:ss');
+
+import numpy as np
+plt.imshow(np.sqrt(data+1.),origin='lower', cmap='gist_heat', vmax=1.1,vmin=0.9)
+plt.colorbar();
+```
+
+    ((1489, 2048), 'float32')
+
+
+
+![png](output_257_1.png)
+
+
+## 12. Histograms
+
+
+
+```python
+# how to display a histogram
+# copy his tutorial
+
+import matplotlib.pyplot as plt
+c8 = SkyCoord('13h18m27.46s','+18d26m17.4s',frame='icrs')
+wcs = WCS(header)
+size = 400
+cutout = Cutout2D(data, center, size, wcs=wcs)
+```
+
+
+```python
+# now lets plot it
+ax = plt.subplot(projection=cutout.wcs)
+ra = ax.coords[0]
+ra.set_major_formatter('hh:mm:ss')
+dec = ax.coords[1]
+dec.set_major_formatter('dd:mm:ss')
+ax.set_xlabel('RA')
+ax.set_ylabel('Dec')
+ax.imshow(np.sqrt(cutout.data+1.),origin='lower', cmap='gist_heat', vmax=1.1,vmin=0.9, aspect='auto')
+
+
+a = np.sqrt(cutout.data+1.)
+mina=np.min(a)
+maxa=np.max(a)
+levels = np.arange(mina,maxa,(maxa-mina)/20.)
+labels = [item.get_text() for item in ax.get_xticklabels()]
+ax.contour(a,levels,color='cyan');
+```
+
+
+![png](output_260_0.png)
+
+
+- now we're doing something else... but idk what.  Ha!
+
+
+```python
+from astroquery.skyview import SkyView
+survey = "WISE 12"
+sv = SkyView()
+paths = sv.get_images(position=' M 82', survey=['WISE 12','GALEX Near UV'])
+```
+
+
+```python
+from astropy.wcs import WCS
+wcs1 = WCS(paths[0][0].header)
+wcs2 = WCS(paths[1][0].header)
+```
+
+
+```python
+fig = plt.figure()
+ax = fig.add_axes([0.1, 0.1, 0.8, 0.8], projection=wcs1)
+ax.imshow(paths[0][0].data, origin='lower', cmap='gist_heat_r')
+ima2 = paths[1][0].data
+levels = np.arange(np.nanmin(ima2),np.nanmax(ima2),1.)
+levels = np.nanmin(ima2)+[0.02,0.09,0.2]
+ax.contour(ima2,levels, transform=ax.get_transform(wcs2),colors='r')
+
+plt.xlabel('RA')
+plt.ylabel('Dec')
+plt.show()
+```
+
+
+![png](output_264_0.png)
+
+
+-------
+
+# Lecture 9 — 
+### January 16, 2017 (Afternoon)
+
+Todo
+  1. project outline
+  2. work on project
+  
+  
+## 1.  Project Outline
+- Make a GUI window that does something
+  - like plotting
+  - or something with imaging
+- project name:
+  - all lowercase
+  - no numbers
+  - this is usually standard for packages
+- make a directory with this name on your computer
+- open a repository on github with the same name
+  - and run:  ```git init``` 
+- make sure to create an empty file in your directory
+  -  ```touch __init__.py``` 
+- make your main file called:
+  -  ```__main__.py``` 
+- make __main__.py executable
+  - ```chmod +x __main__.py```
+  
+## 2. Work on project...
+
+-------
+# Lecture 10 — Intro to numpy
+### January 17, 2017 (Morning)
+
+Todo
+  1. creating arrays
+  2. linspace and logspace
+  3. 2D arrays
+  4. random numbers
+  5. diagonal matricies
+  6. working with CSVs
+  7. numpy native format .npy
+  8. more numpy features
+  9. manipulating arrays
+  
+  
+  
+## 1. Creating arrays
+
+use:
+```python
+import numpy as np
+```
+
+
+```python
+import numpy as np
+```
+
+
+```python
+a = [0,1,4,5]
+
+import numpy as np
+
+arr = np.array(a)
+
+type(arr)
+```
+
+
+
+
+    numpy.ndarray
+
+
+
+
+```python
+M = np.array([[1,2],[3,4]])
+M
+```
+
+
+
+
+    array([[1, 2],
+           [3, 4]])
+
+
+
+
+```python
+print M.shape
+print M.size
+print np.size(M)
+```
+
+    (2, 2)
+    4
+    4
+
+
+
+```python
+# force it to be complex
+
+M = np.array([[1,2],[3,4]] , dtype=complex)
+print M
+```
+
+    [[ 1.+0.j  2.+0.j]
+     [ 3.+0.j  4.+0.j]]
+
+
+
+```python
+# make a range array
+a = np.arange(0,10,0.1)
+print a
+
+b = np.arange(4)
+print b
+```
+
+    [ 0.   0.1  0.2  0.3  0.4  0.5  0.6  0.7  0.8  0.9  1.   1.1  1.2  1.3  1.4
+      1.5  1.6  1.7  1.8  1.9  2.   2.1  2.2  2.3  2.4  2.5  2.6  2.7  2.8  2.9
+      3.   3.1  3.2  3.3  3.4  3.5  3.6  3.7  3.8  3.9  4.   4.1  4.2  4.3  4.4
+      4.5  4.6  4.7  4.8  4.9  5.   5.1  5.2  5.3  5.4  5.5  5.6  5.7  5.8  5.9
+      6.   6.1  6.2  6.3  6.4  6.5  6.6  6.7  6.8  6.9  7.   7.1  7.2  7.3  7.4
+      7.5  7.6  7.7  7.8  7.9  8.   8.1  8.2  8.3  8.4  8.5  8.6  8.7  8.8  8.9
+      9.   9.1  9.2  9.3  9.4  9.5  9.6  9.7  9.8  9.9]
+    [0 1 2 3]
+
+
+## 2. Linspace and logspace
+
+- linspace creates even spacing between two numbers
+- log space creates the log version
+
+
+```python
+c = np.linspace(0,10, 11)
+print c
+
+s = np.linspace(0,10,3)
+print s
+
+l = np.logspace(0,10,11, base=np.e)
+print l
+```
+
+    [  0.   1.   2.   3.   4.   5.   6.   7.   8.   9.  10.]
+    [  0.   5.  10.]
+    [  1.00000000e+00   2.71828183e+00   7.38905610e+00   2.00855369e+01
+       5.45981500e+01   1.48413159e+02   4.03428793e+02   1.09663316e+03
+       2.98095799e+03   8.10308393e+03   2.20264658e+04]
+
+
+
+```python
+# let's plot the logspace
+%matplotlib inline
+import matplotlib.pyplot as plt
+
+plt.plot(l, 'ro');
+```
+
+
+![png](output_275_0.png)
+
+
+## 3. 2D arrays
+
+
+```python
+x, y = np.mgrid[0:5, 0:5]
+x
+print x
+```
+
+    [[0 0 0 0 0]
+     [1 1 1 1 1]
+     [2 2 2 2 2]
+     [3 3 3 3 3]
+     [4 4 4 4 4]]
+
+
+## 4. Random Numbers
+
+
+
+```python
+from numpy import random
+
+random.randn(5)
+```
+
+
+
+
+    array([-0.55327389, -0.82848378, -3.83938099,  0.33373943, -0.55569857])
+
+
+
+
+```python
+random.randn(5,5)
+```
+
+
+
+
+    array([[-2.2424487 , -2.22635777,  1.25886923, -0.7253765 , -0.23106882],
+           [-0.16885923,  1.05945572, -0.09331459, -0.44102382,  0.89738908],
+           [-0.71583664,  0.66318537, -0.08309253,  1.43387331,  0.91142132],
+           [-0.82796087, -0.21847615, -1.19365134, -0.19924693,  0.01563206],
+           [-2.85059809, -0.44371809,  0.44146466,  0.53729729,  1.34920512]])
+
+
+
+## 5. Diagonal Matricies
+
+
+
+```python
+d = np.zeros(5)
+f = np.ones(5)
+eights = np.ones(5)*8
+print d
+print f
+print eights
+```
+
+    [ 0.  0.  0.  0.  0.]
+    [ 1.  1.  1.  1.  1.]
+    [ 8.  8.  8.  8.  8.]
+
+
+
+```python
+np.zeros((3,3))
+```
+
+
+
+
+    array([[ 0.,  0.,  0.],
+           [ 0.,  0.,  0.],
+           [ 0.,  0.,  0.]])
+
+
+
+## 6. Working with CSVs or TSVs
+
+- you can use
+```python
+np.genfromtxt('filename.csv')
+```
+- wow so useful!
+
+
+```python
+%%bash
+echo '
+1000  1  1  -6.1  -6.1  -15.4
+1000  2  1  -5.4   5.5  -12
+' > test.dat
+```
+
+
+```python
+data = np.genfromtxt('test.dat')
+```
+
+
+```python
+data
+```
+
+
+
+
+    array([[ 1000. ,     1. ,     1. ,    -6.1,    -6.1,   -15.4],
+           [ 1000. ,     2. ,     1. ,    -5.4,     5.5,   -12. ]])
+
+
+
+
+```python
+type(data)
+```
+
+
+
+
+    numpy.ndarray
+
+
+
+
+```python
+data.shape
+```
+
+
+
+
+    (2, 6)
+
+
+
+
+```python
+# all rows for column zero
+print data[:,0]
+```
+
+    [ 1000.  1000.]
+
+
+
+```python
+# all colums for row zero
+print data[0,:]
+```
+
+    [ 1000.      1.      1.     -6.1    -6.1   -15.4]
+
+
+
+```python
+# Now let's go reverse and save a random matrix:
+
+M = random.rand(5,3)
+M
+```
+
+
+
+
+    array([[ 0.55479221,  0.77386399,  0.11425171],
+           [ 0.16870586,  0.42865289,  0.12403881],
+           [ 0.12202192,  0.29447273,  0.54647833],
+           [ 0.20246165,  0.48220605,  0.13684229],
+           [ 0.83463444,  0.14320292,  0.44884806]])
+
+
+
+
+```python
+np.savetxt("random-matrix.csv", M)
+```
+
+
+```python
+!cat random-matrix.csv
+```
+
+    5.547922093414258127e-01 7.738639903040632761e-01 1.142517088689203320e-01
+    1.687058573972401998e-01 4.286528904516602179e-01 1.240388090268975674e-01
+    1.220219234012026588e-01 2.944727271345070063e-01 5.464783312494938539e-01
+    2.024616456176745460e-01 4.822060464089179543e-01 1.368422855692188467e-01
+    8.346344421110747369e-01 1.432029176776526969e-01 4.488480553108347149e-01
+
+
+
+```python
+np.savetxt("random-matrix.csv", M, fmt='% 5f')
+```
+
+
+```python
+!cat random-matrix.csv
+```
+
+     0.554792  0.773864  0.114252
+     0.168706  0.428653  0.124039
+     0.122022  0.294473  0.546478
+     0.202462  0.482206  0.136842
+     0.834634  0.143203  0.448848
+
+
+
+```python
+# now load our text back in!
+A = np.loadtxt('random-matrix.csv')
+print A
+```
+
+    [[ 0.554792  0.773864  0.114252]
+     [ 0.168706  0.428653  0.124039]
+     [ 0.122022  0.294473  0.546478]
+     [ 0.202462  0.482206  0.136842]
+     [ 0.834634  0.143203  0.448848]]
+
+
+
+```python
+# also let's learn gzip or bzip2
+# will compress your file
+# loadtxt will automatically unzip
+!gzip  random-matrix.csv
+# or 
+# !bzip2 random-matrix.csv
+```
+
+    gzip: can't stat: random-matrix.csv (random-matrix.csv): No such file or directory
+
+
+## 7. numpy's native format .npy
+
+- good if you're just using the files for yourself
+- not recommended to distribute these files
+
+
+```python
+np.save("random-matrix.npy",M)
+```
+
+
+```python
+!cat random-matrix.npy
+```
+
+    �NUMPY F {'descr': '<f8', 'fortran_order': False, 'shape': (5, 3), }          
+    �Mf����?q=j~��? ���?�?�N'��?�t�o�?��4���?�6g*�<�?.�&#���?. �|�?�OaC��?�пv��?hf�J��?�nJS��?�$yT�?��1��?
+
+
+```python
+C = np.load("random-matrix.npy")
+print C
+```
+
+    [[ 0.55479221  0.77386399  0.11425171]
+     [ 0.16870586  0.42865289  0.12403881]
+     [ 0.12202192  0.29447273  0.54647833]
+     [ 0.20246165  0.48220605  0.13684229]
+     [ 0.83463444  0.14320292  0.44884806]]
+
+
+## 8. More numpy features
+
+
+```python
+# gives dimensions of array
+M.ndim
+```
+
+
+
+
+    2
+
+
+
+
+```python
+# total number of bytes
+M.nbytes
+```
+
+
+
+
+    120
+
+
+
+
+```python
+# bytes per element
+M.itemsize
+```
+
+
+
+
+    8
+
+
+
+## 9. Manipulating arrays
+
+### Indexing
+
+
+```python
+M
+```
+
+
+
+
+    array([[ 0.55479221,  0.77386399,  0.11425171],
+           [ 0.16870586,  0.42865289,  0.12403881],
+           [ 0.12202192,  0.29447273,  0.54647833],
+           [ 0.20246165,  0.48220605,  0.13684229],
+           [ 0.83463444,  0.14320292,  0.44884806]])
+
+
+
+
+```python
+M[2,1]
+```
+
+
+
+
+    0.29447272713450701
+
+
+
+
+```python
+M[1]
+```
+
+
+
+
+    array([ 0.16870586,  0.42865289,  0.12403881])
+
+
+
+
+```python
+M[0]
+```
+
+
+
+
+    array([ 0.55479221,  0.77386399,  0.11425171])
+
+
+
+
+```python
+print M[:,0]
+
+print M[0,:]
+```
+
+    [ 0.55479221  0.16870586  0.12202192  0.20246165  0.83463444]
+    [ 0.55479221  0.77386399  0.11425171]
+
+
+
+```python
+# assign a new value:
+M[0,0] = 1
+print M
+```
+
+    [[ 1.          0.77386399  0.11425171]
+     [ 0.16870586  0.42865289  0.12403881]
+     [ 0.12202192  0.29447273  0.54647833]
+     [ 0.20246165  0.48220605  0.13684229]
+     [ 0.83463444  0.14320292  0.44884806]]
+
+
+
+```python
+M[1,:] = 4.4
+print M
+```
+
+    [[ 1.          0.77386399  0.11425171]
+     [ 4.4         4.4         4.4       ]
+     [ 0.12202192  0.29447273  0.54647833]
+     [ 0.20246165  0.48220605  0.13684229]
+     [ 0.83463444  0.14320292  0.44884806]]
+
 
 
 ```python
